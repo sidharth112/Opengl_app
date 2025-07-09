@@ -105,19 +105,42 @@ int main(void)
     }
 
     std::println("The present GL Version is {}", reinterpret_cast<const char*>(glGetString(GL_VERSION)));
-
+#if 0
     float positions[6] = {
     -0.5f , -0.5f,
      0.0f ,  0.5f,
      0.5f , -0.5f 
     };
+#endif
+
+    float positions[] = {
+    -0.5f , -0.5f,
+     0.5f , -0.5f,
+     0.5f ,  0.5f,
+	-0.5f ,  0.5f
+	};
+
+	unsigned int indices[] = {
+		0, 1, 2, // First Triangle
+		2, 3, 0  // Second Triangle
+	};
     unsigned int buffer;
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, 6*sizeof(float), positions, GL_STATIC_DRAW);
+    //glBufferData(GL_ARRAY_BUFFER, 6*sizeof(float), positions, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 6 * 2 * sizeof(float), positions, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
     
+
+	unsigned int ibo;
+	glGenBuffers(1, &ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6*sizeof(indices), indices, GL_STATIC_DRAW);
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
 #if 0
     std::string vertexShader = "#version 330 core\n"
         "layout(location = 0) in vec4 position;\n"
@@ -149,8 +172,9 @@ int main(void)
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-        
+        //glDrawArrays(GL_TRIANGLES, 0, 3);
+        //glDrawArrays(GL_TRIANGLES, 0, 6);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 #if 0
         glBegin(GL_TRIANGLES);
         glVertex2f(-0.5f , -0.5f);
