@@ -132,6 +132,8 @@ int main(void)
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
 
+	glfwSwapInterval(1); // Enable vsync
+
     if (glewInit() != GLEW_OK)
     {
         std::println("Error");
@@ -161,7 +163,7 @@ int main(void)
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
     //glBufferData(GL_ARRAY_BUFFER, 6*sizeof(float), positions, GL_STATIC_DRAW);
-    glBufferData(GL_ARRAY_BUFFER, 6 * 2 * sizeof(float), positions, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 4 * 2 * sizeof(float), positions, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
     
@@ -174,6 +176,9 @@ int main(void)
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
+
+    
+
 #if 0
     std::string vertexShader = "#version 330 core\n"
         "layout(location = 0) in vec4 position;\n"
@@ -191,6 +196,10 @@ int main(void)
 	ShaderProgramSource source = ParseShader("res/shaders/Basic.shader");
 	unsigned int shader = CreateShader(source.VertexSource, source.FragmentSource);
 	glUseProgram(shader);
+
+	GLCall(int location = glGetUniformLocation(shader, "u_Color"));
+    ASSERT(location != -1);
+    glUniform4f(location, 0.2f, 0.3f, 0.8f, 1.0f);
     std::println("....Compiling shaders...");
 	std::println("Vertex Shader:\n{}", source.VertexSource);
 	std::println("Fragment Shader:\n{}", source.FragmentSource);
@@ -199,6 +208,16 @@ int main(void)
 
     //unsigned int shader = CreateShader(vertexShader, fragmentShader);
 	//glUseProgram(shader);
+
+    //Unbound everything
+    glUseProgram(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    float r = 0.0f;
+	float g = 0.3f;
+	float b = 0.8f;
+	float increment = 0.05f;
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
@@ -209,10 +228,29 @@ int main(void)
         //glDrawArrays(GL_TRIANGLES, 0, 6);
 		
         //GLClearError();
+
+        glUseProgram(shader);
+        glUniform4f(location, r, g, b, 1.0f);
+        glBindBuffer(GL_ARRAY_BUFFER, buffer);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+
+
+
+        
         GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
         //ASSERT(GLLogCall());
 		//GLCheckError(__FUNCTION__, __FILE__, __LINE__);
-        
+        if (r > 1.0f)
+        {
+			increment = -0.05f;
+		}
+		else if (r < 0.0f)
+		{
+			increment = 0.05f;
+        }
+		r += increment;
 		
 #if 0
         glBegin(GL_TRIANGLES);
