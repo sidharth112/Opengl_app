@@ -139,6 +139,10 @@ int main(void)
         std::println("Error");
     }
 
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
     std::println("The present GL Version is {}", reinterpret_cast<const char*>(glGetString(GL_VERSION)));
 #if 0
     float positions[6] = {
@@ -159,6 +163,11 @@ int main(void)
 		0, 1, 2, // First Triangle
 		2, 3, 0  // Second Triangle
 	};
+
+	unsigned int vao;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
     unsigned int buffer;
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
@@ -210,6 +219,8 @@ int main(void)
 	//glUseProgram(shader);
 
     //Unbound everything
+    
+    glBindVertexArray(vao);
     glUseProgram(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -231,9 +242,9 @@ int main(void)
 
         glUseProgram(shader);
         glUniform4f(location, r, g, b, 1.0f);
-        glBindBuffer(GL_ARRAY_BUFFER, buffer);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
+        //glBindBuffer(GL_ARRAY_BUFFER, buffer);
+		glEnableVertexAttribArray(vao);
+		//glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 
 
