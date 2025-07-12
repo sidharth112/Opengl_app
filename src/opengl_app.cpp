@@ -5,7 +5,40 @@
 #include <string>
 #include <sstream>
 
+//OpenGL ERROR Logging
+#define ASSERT(x) if (!(x)) __debugbreak();
 
+#define GLCall(x) GLClearError();\
+    x;\
+    ASSERT(GLLogCall());
+#define GLCallCheck(x) GLClearError();\
+    x;\
+    GLCheckError(__FUNCTION__, __FILE__, __LINE__);\
+
+
+static void GLClearError()
+{
+	while (glGetError() != GL_NO_ERROR);
+}
+
+static void GLCheckError(const char* function, const char* file, int line)
+{
+	while (GLenum error = glGetError())
+	{
+		std::println("OpenGL Error: {} in {} at {}:{}", error, function, file, line);
+	}
+}
+
+static bool GLLogCall()
+{
+    while (GLenum error = glGetError())
+    {
+		std::println("OpenGL Error: {}", error);
+		return false;
+    }
+    return true;
+}
+//End of OpenGL Error Logging
 struct ShaderProgramSource
 {
 	std::string VertexSource;
@@ -174,7 +207,13 @@ int main(void)
 
         //glDrawArrays(GL_TRIANGLES, 0, 3);
         //glDrawArrays(GL_TRIANGLES, 0, 6);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+		
+        //GLClearError();
+        GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+        //ASSERT(GLLogCall());
+		//GLCheckError(__FUNCTION__, __FILE__, __LINE__);
+        
+		
 #if 0
         glBegin(GL_TRIANGLES);
         glVertex2f(-0.5f , -0.5f);
